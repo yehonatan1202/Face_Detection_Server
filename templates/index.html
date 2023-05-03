@@ -7,23 +7,31 @@
 {% block body %}
 <div class="content">
     <h1 style="text-align: center">Attendance</h1>
-    {% if tasks|length < 1 %}
+    {% if students|length < 1 %}
     <h4 style="text-align: center">There are no students. Create one below!</h4>
     {% else %}
     <table>
         <tr>
             <th>Name</th>
+            <th>Present</th>
+            <th>RFID</th>
+            <th>Photo</th>
             <th>Added</th>
             <th>Actions</th>
         </tr>
-        {% for task in tasks %}
+        {% for student in students %}
             <tr>
-                <td>{{ task.content }}</td>
-                <td>{{ task.date_created.date() }}</td>
+                <td>{{ student.content }}</td>
+                <td>{{ student.present }}</td>
+                <td>{{ student.rfid }}</td>
+                <td>{{ student.vector }}</td>
+                <td>{{ student.date_created.date() }}</td>
                 <td>
-                    <a href="/delete/{{task.id}}">Delete</a>
+                    <a href="/delete/{{student.id}}">Delete</a>
                     <br>
-                    <a href="/update/{{task.id}}">Update</a>
+                    <a href="/update/{{student.id}}">Update</a>
+                    <br>
+                    <a href="{{ url_for('present', id=student.id) }}">Mark as present</a>
                 </td>
             </tr>
         {% endfor %}

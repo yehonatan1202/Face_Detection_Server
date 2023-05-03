@@ -5,14 +5,16 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
-
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
+    present = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    rfid = db.Column(db.String, nullable=True)
+    vector = db.Column(db.String, nullable=True)
 
     def __repr__(self):
-        return '<Task %r>' % self.id
+        return '<Student %r>' % self.id
 
 # with app.app_context():
 #         db.create_all()
@@ -31,8 +33,8 @@ def index():
             return 'There was an issue adding your task'
 
     else:
-        tasks = Student.query.order_by(Student.date_created).all()
-        return render_template('index.html', tasks=tasks)
+        students = Student.query.order_by(Student.date_created).all()
+        return render_template('index.html', students=students)
 
 
 @app.route('/delete/<int:id>')
@@ -62,6 +64,45 @@ def update(id):
     else:
         return render_template('update.html', task=task)
 
+@app.route('/present/<int:id>')
+def present(id):
+    student = Student.query.get_or_404(id)
+    student.present = True
+
+    try:
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was an issue updating the record'
+
+
+@app.route('/valid_id/<string:rfid>')
+def valid_id(rfid):
+    valid = str(Student.query.filter_by(rfid=rfid).first())
+    try:
+        return valid
+    except:
+        return 'There was an issue retriving the record'
+
+@app.route('/add_id/<string:content>/<string:rfid>')
+def add_id(content, rfid):
+    student = Student.query.filter_by(content=content).first()
+    student.rfid = rfid
+    try:
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was an issue updating the record'
+    
+@app.route('/add_vector/<string:content>/<string:vector>')
+def add_vector(content, vector):
+    student = Student.query.filter_by(content=content).first()
+    student.vector = vector
+    try:
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was an issue updating the record'
 
 if __name__ == "__main__":
     app.run(debug=True)
