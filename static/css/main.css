@@ -22,6 +22,13 @@ th {
     height: 30px;
 }
 
+td.a {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 td {
     text-align: center;
     padding: 5px;

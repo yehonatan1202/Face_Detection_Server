@@ -11,7 +11,7 @@ class Student(db.Model):
     present = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     rfid = db.Column(db.String, nullable=True)
-    vector = db.Column(db.String, nullable=True)
+    vector = db.Column(db.Text(), nullable=True)
 
     def __repr__(self):
         return '<Student %r>' % self.id
@@ -67,25 +67,33 @@ def update(id):
 @app.route('/present/<int:id>')
 def present(id):
     student = Student.query.get_or_404(id)
-    student.present = True
-
+    student.present = not student.present
     try:
         db.session.commit()
         return redirect('/')
     except:
         return 'There was an issue updating the record'
 
+@app.route('/present_rfid/<int:rfid>')
+def present_rfid(rfid):
+    student = Student.query.filter_by(rfid=rfid).first()
+    student.present = not student.present
+    try:
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was an issue updating the record'
 
-@app.route('/valid_id/<string:rfid>')
-def valid_id(rfid):
+@app.route('/valid_rfid/<string:rfid>')
+def valid_rfid(rfid):
     valid = str(Student.query.filter_by(rfid=rfid).first())
     try:
         return valid
     except:
         return 'There was an issue retriving the record'
 
-@app.route('/add_id/<string:content>/<string:rfid>')
-def add_id(content, rfid):
+@app.route('/add_rfid/<string:content>/<string:rfid>')
+def add_rfid(content, rfid):
     student = Student.query.filter_by(content=content).first()
     student.rfid = rfid
     try:
@@ -94,8 +102,8 @@ def add_id(content, rfid):
     except:
         return 'There was an issue updating the record'
     
-@app.route('/add_vector/<string:content>/<string:vector>')
-def add_vector(content, vector):
+@app.route('/set_vector/<string:content>/<string:vector>')
+def set_vector(content, vector):
     student = Student.query.filter_by(content=content).first()
     student.vector = vector
     try:
@@ -103,6 +111,14 @@ def add_vector(content, vector):
         return redirect('/')
     except:
         return 'There was an issue updating the record'
+    
+@app.route('/get_vector/<string:rfid>')
+def get_vector(rfid):
+    student = Student.query.filter_by(rfid=rfid).first()
+    try:
+        return student.vector
+    except:
+        return 'There was an issue retriving the record'
 
 if __name__ == "__main__":
     app.run(debug=True)
