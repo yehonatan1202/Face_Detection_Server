@@ -120,5 +120,13 @@ def get_vector(rfid):
     except:
         return 'There was an issue retriving the record'
 
+@app.route('/get_content/<string:rfid>')
+def get_content(rfid):
+    student = Student.query.filter_by(rfid=rfid).first()
+    try:
+        return student.content
+    except:
+        return 'There was an issue retriving the record'
+
 if __name__ == "__main__":
     app.run(debug=True)
